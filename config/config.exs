@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :ueberauth_wechat, key: :value
+#     config :ueberauth_feishu, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:ueberauth_wechat, :key)
+#     Application.get_env(:ueberauth_feishu, :key)
 #
 # Or configure a 3rd-party app:
 #
