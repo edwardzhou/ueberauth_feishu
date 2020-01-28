@@ -46,13 +46,15 @@ defmodule Ueberauth.Strategy.Feishu do
 
   """
   use Ueberauth.Strategy,
-    uid_field: :openId,
+    uid_field: :open_id,
     default_scope: "snsapi_userinfo",
     oauth2_module: Ueberauth.Strategy.Feishu.OAuth
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
+
+  @user_info_url "https://open.feishu.cn/open-apis/authen/v1/user_info"
 
   @doc """
   Handles the initial redirect to the feishu authentication page.
@@ -92,7 +94,9 @@ defmodule Ueberauth.Strategy.Feishu do
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code} = params} = conn) do
     module = option(conn, :oauth2_module)
-    token = apply(module, :get_token!, [[code: code]])
+    token = 
+      apply(module, :get_token!, [[code: code]])
+      |> IO.inspect(label: "Feishu::Strategy.handle_callback response", pretty: true)
 
     if token.access_token == nil do
       set_errors!(conn, [
@@ -139,11 +143,12 @@ defmodule Ueberauth.Strategy.Feishu do
 
     %Credentials{
       token: token.access_token,
-      refresh_token: "",
-      expires_at: 0,
-      token_type: "feishu",
+      refresh_token: token.refresh_token,
+      expires_at: token.expires_at,
+      token_type: token.token_type,
       expires: false,
-      scopes: scopes
+      scopes: scopes,
+      other: token.other_params
     }
   end
 
@@ -154,8 +159,10 @@ defmodule Ueberauth.Strategy.Feishu do
     user = conn.private.feishu_user
 
     %Info{
-      nickname: user["nickName"],
-      image: user["avatarUrl"]
+      nickname: user["name"],
+      name: user["name"],
+      image: user["avatar_url"],
+      email: user["email"],
     }
   end
 
@@ -173,53 +180,20 @@ defmodule Ueberauth.Strategy.Feishu do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :feishu_token, token)
-    # Will be better with Elixir 1.3 with/else
-    miniapp_token = token.access_token |> Jason.decode!()
+    token
+    |> IO.inspect(label: "Feishu::Strategy.fetch_user token ", pretty: true)
 
-    result = with {:ok, _} <- verify_signature(conn, miniapp_token), 
-          do: decrypt_data(conn, miniapp_token)
-    
+    result = 
+      conn
+      |> option(:oauth2_module)
+      |> apply(:get, [token, @user_info_url])
+      |> IO.inspect(label: "get user info", pretty: true)
+
     case result do
       {:error, reason} ->
         set_errors!(conn, [error("data_invalid", reason)])
       {:ok, user_info} ->
-        put_private(conn, :feishu_user, user_info)
-    end
-  end
-
-  defp decrypt_data(%{params: params} = _conn, miniapp_token) do
-    dec_key = miniapp_token["session_key"] |> Base.decode64!()
-    iv_key = params["iv"] |> Base.decode64!()
-    debase64_data = params["encrypted_data"] |> Base.decode64!()
-
-    # decrypt with AES128
-    binary_data = :crypto.block_decrypt(:aes_cbc128, dec_key, iv_key, debase64_data)
-    # unpad
-    to_remove = :binary.last(binary_data)
-    case binary_data
-          |> :binary.part(0, byte_size(binary_data) - to_remove)
-          |> Poison.decode() do
-      {:ok, data} -> 
-        union_id = data[:unionId]
-        {:ok, Map.put(data, "unionid", union_id)}
-      _ ->
-        {:error, :data_corrupted}      
-    end
-  end
-
-  defp verify_signature(%{params: params} = _conn, miniapp_token) do
-    signature = params["signature"]
-    raw_data = params["raw_data"]
-    session_key = miniapp_token["session_key"]
-
-    sha1 = :crypto.hash(:sha, raw_data <> session_key)
-            |> Base.encode16
-            |> String.downcase
-    case sha1 do
-      ^signature ->
-        {:ok, signature}
-      _ ->
-        {:error, :signature_not_matched}
+        put_private(conn, :feishu_user, Map.merge(token.other_params, user_info.body["data"]))
     end
   end
 

@@ -14,7 +14,7 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     strategy: __MODULE__,
     site: "https://open.feishu.cn/",
     authorize_url: "https://open.feishu.cn/connect/qrconnect/page/sso",
-    token_url: "https://api.weixin.qq.com/sns/jscode2session"
+    token_url: "https://open.feishu.cn/connect/qrconnect/oauth2/access_token/"
   ]
 
   @doc """
@@ -52,15 +52,23 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
   end
 
   def get(token, url, headers \\ [], opts \\ []) do
-    access_token = Jason.decode!(token.access_token)
-    url = ~s/#{url}?access_token=#{access_token["access_token"]}&openid=#{access_token["openid"]}/
+    access_token = token.access_token
+
+    headers = 
+      headers
+      |> Keyword.put(:authentication, "Bearer " <> access_token)
+      |> Keyword.put(:"content-type", "application/json")
+
+    url = ~s/#{url}/
     [token: token]
     |> client
     |> OAuth2.Client.get(url, headers, opts)
+    |> IO.inspect(label: "Feishu::OAuth.get response", pretty: true)
   end
 
   def get_token!(params \\ [], options \\ []) do
-    headers        = Keyword.get(options, :headers, [])
+    headers        = 
+      Keyword.get(options, :headers, [])
     options        = Keyword.get(options, :options, [])
     client_options = Keyword.get(options, :client_options, [])
     client         = OAuth2.Client.get_token!(client(client_options), params, headers, options)
@@ -71,7 +79,6 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
 
   def authorize_url(client, params) do
     client
-    |> put_param(:response_type, "code")
     |> put_param(:app_id, client.client_id)
     |> put_param(:redirect_uri, client.redirect_uri)
     |> OAuth2.Strategy.AuthCode.authorize_url(params)
@@ -86,9 +93,11 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     client
     |> put_param(:app_id, client.client_id)
     |> put_param(:code, code)
-    |> put_param(:secret, client.client_secret)
+    |> put_param(:app_secret, client.client_secret)
     |> put_header("Accept", "application/json")
+    |> put_header("content-type", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
+    |> IO.inspect(label: "feishu_oauth_get_token", pretty: true)
   end
 
   defp check_config_key_exists(config, key) when is_list(config) do
