@@ -59,9 +59,7 @@ defmodule Ueberauth.Strategy.Feishu do
   @doc """
   Handles the initial redirect to the feishu authentication page.
 
-  To customize the scope (permissions) that are requested by feishu include them as part of your url:
-
-      "/auth/feishu?scope=snsapi_userinfo"
+      "/auth/feishu"
 
   You can also include a `state` param that feishu will return to you.
   """

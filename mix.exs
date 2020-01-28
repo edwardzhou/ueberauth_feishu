@@ -42,7 +42,7 @@ defmodule Ueberauth.Feishu.Mixfile do
   end
 
   defp description do
-    "An Ueberauth strategy for using Wechat Miniapp to authenticate your users."
+    "An Ueberauth strategy for using Feishu to authenticate your users."
   end
 
   defp package do
