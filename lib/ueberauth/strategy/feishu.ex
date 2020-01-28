@@ -14,8 +14,8 @@ defmodule Ueberauth.Strategy.Feishu do
   Then include the configuration for feishu.
 
       config :ueberauth, Ueberauth.Strategy.Feishu.OAuth,
-        client_id: System.get_env("WECHAT_MINIAPP_APPID"),
-        client_secret: System.get_env("WECHAT_MINIAPP_SECRET")
+        client_id: System.get_env("FEISHU_APPID"),
+        client_secret: System.get_env("SEISHU_SECRET")
 
   If you haven't already, create a pipeline and setup routes for your callback handler
 
@@ -174,7 +174,7 @@ defmodule Ueberauth.Strategy.Feishu do
   defp fetch_user(conn, token) do
     conn = put_private(conn, :feishu_token, token)
     # Will be better with Elixir 1.3 with/else
-    miniapp_token = token.access_token |> Poison.decode!()
+    miniapp_token = token.access_token |> Jason.decode!()
 
     result = with {:ok, _} <- verify_signature(conn, miniapp_token), 
           do: decrypt_data(conn, miniapp_token)

@@ -24,11 +24,11 @@ defmodule Ueberauth.Feishu.Mixfile do
 
   defp deps do
     [
-     {:oauth2, "~> 0.9"},
-     {:ueberauth, "~> 0.4"},
-     {:poison, "~> 3.1"},
+     {:oauth2, "~> 2.0"},
+     {:ueberauth, "~> 0.6"},
+     {:jason, "~> 1.0"},
      # dev/test only dependencies
-     {:credo, "~> 0.8", only: [:dev, :test]},
+     {:credo, "~> 1.2", only: [:dev, :test]},
 
      # docs dependencies
      {:earmark, ">= 0.0.0", only: :dev},
