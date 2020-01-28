@@ -1,4 +1,4 @@
-defmodule UeberauthWechatTest do
+defmodule UeberauthFeishuTest do
   use ExUnit.Case
   doctest UeberauthFeishu
 
