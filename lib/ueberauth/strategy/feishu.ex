@@ -90,7 +90,7 @@ defmodule Ueberauth.Strategy.Feishu do
   Handles the callback from Feishu. When there is a failure from Feishu the failure is included in the
   `ueberauth_failure` struct. Otherwise the information returned from Feishu is returned in the `Ueberauth.Auth` struct.
   """
-  def handle_callback!(%Plug.Conn{params: %{"code" => code} = _ params} = conn) do
+  def handle_callback!(%Plug.Conn{params: %{"code" => code} = _params} = conn) do
     token = 
       conn
       |> option(:oauth2_module)
