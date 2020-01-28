@@ -91,10 +91,10 @@ defmodule Ueberauth.Strategy.Feishu do
   `ueberauth_failure` struct. Otherwise the information returned from Feishu is returned in the `Ueberauth.Auth` struct.
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code} = params} = conn) do
-    module = option(conn, :oauth2_module)
     token = 
-      apply(module, :get_token!, [[code: code]])
-      |> IO.inspect(label: "Feishu::Strategy.handle_callback response", pretty: true)
+      conn
+      |> option(:oauth2_module)
+      |> apply(:get_token!, [[code: code]])
 
     if token.access_token == nil do
       set_errors!(conn, [
@@ -178,14 +178,11 @@ defmodule Ueberauth.Strategy.Feishu do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :feishu_token, token)
-    token
-    |> IO.inspect(label: "Feishu::Strategy.fetch_user token ", pretty: true)
 
     result = 
       conn
       |> option(:oauth2_module)
       |> apply(:get, [token, @user_info_url])
-      |> IO.inspect(label: "get user info", pretty: true)
 
     case result do
       {:error, reason} ->

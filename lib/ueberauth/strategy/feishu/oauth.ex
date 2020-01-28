@@ -63,12 +63,10 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     [token: token]
     |> client
     |> OAuth2.Client.get(url, headers, opts)
-    |> IO.inspect(label: "Feishu::OAuth.get response", pretty: true)
   end
 
   def get_token!(params \\ [], options \\ []) do
-    headers        = 
-      Keyword.get(options, :headers, [])
+    headers        = Keyword.get(options, :headers, [])
     options        = Keyword.get(options, :options, [])
     client_options = Keyword.get(options, :client_options, [])
     client         = OAuth2.Client.get_token!(client(client_options), params, headers, options)
@@ -97,7 +95,6 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     |> put_header("Accept", "application/json")
     |> put_header("content-type", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
-    |> IO.inspect(label: "feishu_oauth_get_token", pretty: true)
   end
 
   defp check_config_key_exists(config, key) when is_list(config) do
