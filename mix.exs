@@ -24,8 +24,8 @@ defmodule Ueberauth.Feishu.Mixfile do
 
   defp deps do
     [
-    #  {:oauth2, "~> 2.0"},
-     {:oauth2, "~> 0.9"},
+     {:oauth2, "~> 2.0"},
+    #  {:oauth2, "~> 0.9"},
      {:ueberauth, "~> 0.6"},
      {:jason, "~> 1.0"},
      # dev/test only dependencies
