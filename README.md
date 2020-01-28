@@ -1,14 +1,14 @@
-# Überauth Wechat Miniapp
+# Überauth Feishu
 
-> Wechat Miniapp OAuth2 strategy for Überauth.
+> Feishu OAuth2 strategy for Überauth.
 
 ## Installation
 
-1. Add `:ueberauth_wechat_miniapp` to your list of dependencies in `mix.exs`:
+1. Add `:ueberauth_feishu` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:ueberauth_wechat_miniapp, github: "edwardzhou/ueberauth_wechat_miniapp"}]
+      [{:ueberauth_feishu, github: "edwardzhou/ueberauth_feishu"}]
     end
     ```
 
@@ -16,7 +16,7 @@
 
     ```elixir
     def application do
-      [applications: [:ueberauth_wechat_miniapp]]
+      [applications: [:ueberauth_feishu]]
     end
     ```
 
@@ -25,16 +25,16 @@
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        wechat_miniapp: {Ueberauth.Strategy.WechatMiniapp, []}
+        feishu: {Ueberauth.Strategy.Feishu, []}
       ]
     ```
 
 1.  Update your provider configuration:
 
     ```elixir
-    config :ueberauth, Ueberauth.Strategy.WechatMiniapp.OAuth,
-      client_id: System.get_env("WECHAT_MINIAPP_APPID"),
-      client_secret: System.get_env("WECHAT_MINIAPP_SECRET")
+    config :ueberauth, Ueberauth.Strategy.Feishu.OAuth,
+      client_id: System.get_env("FEISHU_APPID"),
+      client_secret: System.get_env("FEISHU_SECRET")
     ```
 
 1.  Include the Überauth plug in your controller:
@@ -67,43 +67,6 @@ For an example implementation see the [Überauth Example](https://github.com/ueb
 
 ## Calling
     get or post
-    /auth/wechat_miniapp/callback?code=<js_code>&iv=<iv>&encrypted_data=<encrypted_data>&signature=<signature>&raw_data=<raw_data>
+    /auth/feishu/callback?code=<auth_code>
 
-
-## Wechat Miniapp oauth sample:
-```
-    // try login
-    // 登录
-    wx.login({
-        success: res => {
-        if (res.code) {
-            const code = res.code;
-
-            wx.getUserInfo({withCredentials: true,
-            success: user_res => {
-                var form_data = {
-                code: code,
-                raw_data: user_res.rawData,
-                signature: user_res.signature,
-                encrypted_data: user_res.encryptedData,
-                iv: user_res.iv
-                }
-
-                wx.request({
-                url: 'https://your.domain.com/auth/wechat_miniapp/callback',
-                data: form_data,
-                success: login_res => {
-                    console.log("login response: " + JSON.stringify(res));
-                },
-                fail: res => {
-                console.log("login failed!")
-                }
-                })
-            }
-            })
-        }
-        }
-    })
-
-```
 
