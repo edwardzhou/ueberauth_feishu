@@ -32,8 +32,8 @@ defmodule Ueberauth.Feishu.Mixfile do
      {:credo, "~> 1.2", only: [:dev, :test]},
 
      # docs dependencies
-     {:earmark, ">= 0.0.0", only: :dev},
-     {:ex_doc, ">= 0.0.0", only: :dev}
+     {:earmark, ">= 0.0.0", only: [:dev, :docs]},
+     {:ex_doc, ">= 0.0.0", only: [:dev, :docs]}
     ]
   end
 

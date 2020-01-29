@@ -8,6 +8,7 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
         client_id: System.get_env("FEISHU_APPID"),
         client_secret: System.get_env("FEISHU_SECRET")
   """
+
   use OAuth2.Strategy
 
   @defaults [
@@ -51,6 +52,9 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     |> OAuth2.Client.authorize_url!(params)
   end
 
+  @doc """
+  Perform HTTP GET action
+  """
   def get(token, url, headers \\ [], opts \\ []) do
     access_token = token.access_token
 
@@ -65,6 +69,9 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     |> OAuth2.Client.get(url, headers, opts)
   end
 
+  @doc """
+  Get token
+  """
   def get_token!(params \\ [], options \\ []) do
     headers        = Keyword.get(options, :headers, [])
     options        = Keyword.get(options, :options, [])
@@ -75,6 +82,9 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
 
   # Strategy Callbacks
 
+  @doc """
+  Generate authorize url
+  """
   def authorize_url(client, params) do
     client
     |> put_param(:app_id, client.client_id)
@@ -82,6 +92,9 @@ defmodule Ueberauth.Strategy.Feishu.OAuth do
     |> OAuth2.Strategy.AuthCode.authorize_url(params)
   end
 
+  @doc """
+  Get token from Feishu
+  """
   def get_token(client, params, headers) do
     {code, params} = Keyword.pop(params, :code, client.params["code"])
     unless code do
