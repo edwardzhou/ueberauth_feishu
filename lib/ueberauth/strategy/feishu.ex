@@ -82,9 +82,35 @@ defmodule Ueberauth.Strategy.Feishu do
   end
 
   @doc """
-  Enable test callback with code=test_code
+  Enable callback with code=test_code for unit test support only.
+
+  Authorization can be mock in unit test.
+  Example:
+
+  describe "new github authentication" do
+    test "create new user", %{conn: conn} do
+      assert Accounts.find_authentication(@github_params.uid) == nil
+
+      conn =
+        conn
+        |> assign(:ueberauth_auth, @github_params)
+        |> get(auth_path(conn, :callback, :github), %{"code" => "test_code"})
+
+      assert html_response(conn, 302)
+      assert Accounts.find_authentication(@github_params.uid) != nil
+    end
+  end
   """
-  def handle_callback!(%Plug.Conn{params: %{"code" => "test_code"}} = conn), do: conn
+  def handle_callback!(%Plug.Conn{params: %{"code" => "test_code"}} = conn) do
+    case Mix.env() do
+      :test ->
+        conn
+      _ ->
+        conn
+        |> Map.put(:assigns, Map.delete(conn.assigns, :ueberauth_auth))
+        |> set_errors!([error("invalid_code", "test_code is for test only.")])
+    end
+  end
 
   @doc """
   Handles the callback from Feishu. When there is a failure from Feishu the failure is included in the
