@@ -48,6 +48,7 @@ defmodule Ueberauth.Strategy.Feishu do
   use Ueberauth.Strategy,
     uid_field: :open_id,
     default_scope: "snsapi_userinfo",
+    ignores_csrf_attack: true,
     oauth2_module: Ueberauth.Strategy.Feishu.OAuth
 
   alias Ueberauth.Auth.Info
@@ -117,7 +118,7 @@ defmodule Ueberauth.Strategy.Feishu do
   `ueberauth_failure` struct. Otherwise the information returned from Feishu is returned in the `Ueberauth.Auth` struct.
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code} = _params} = conn) do
-    token = 
+    token =
       conn
       |> option(:oauth2_module)
       |> apply(:get_token!, [[code: code]])
@@ -205,7 +206,7 @@ defmodule Ueberauth.Strategy.Feishu do
   defp fetch_user(conn, token) do
     conn = put_private(conn, :feishu_token, token)
 
-    result = 
+    result =
       conn
       |> option(:oauth2_module)
       |> apply(:get, [token, @user_info_url])
