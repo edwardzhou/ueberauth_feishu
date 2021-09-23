@@ -26,7 +26,7 @@ defmodule Ueberauth.Feishu.Mixfile do
     [
     #  {:oauth2, "~> 2.0"},
      {:oauth2, "~> 0.9"},
-     {:ueberauth, "~> 0.6"},
+     {:ueberauth, "~> 0.7"},
      {:jason, "~> 1.0"},
      # dev/test only dependencies
      {:credo, "~> 1.2", only: [:dev, :test]},
